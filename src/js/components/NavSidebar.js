@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+//import { Link } from 'react-router';
 
 import Sidebar from "grommet/components/Sidebar";
 import Header from "grommet/components/Header";
@@ -8,6 +8,7 @@ import Title from "grommet/components/Title";
 import Button from "grommet/components/Button";
 import Menu from "grommet/components/Menu";
 import Close from "grommet/components/icons/base/Close";
+import Anchor from 'grommet/components/Anchor';
 
 import { navActivate } from '../actions';
 
@@ -27,11 +28,11 @@ class NavSidebar extends Component {
 
   render () {
     const { nav: {items}} = this.props;
-    var links = items.map( (page) => {
+    var links = items.map( (page, index) => {
       return (
-        <Link key={page.label} to={page.path}>
+        <Anchor key={index} path={page.path} method="push">
           {page.label}
-        </Link>
+        </Anchor>
       );
     });
     return (
