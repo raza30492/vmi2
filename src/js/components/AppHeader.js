@@ -14,7 +14,6 @@ class AppHeader extends Component {
 
   constructor () {
     super();
-
     this._openMenu = this._openMenu.bind(this);
   }
 
@@ -29,11 +28,11 @@ class AppHeader extends Component {
       title = (
         <Title>
           <Button icon={<MenuIcon />} onClick={this._openMenu} />
-          Vendor Management Application
+          Vendor Managed Inventory
         </Title>
       );
     }else{
-      title = (<Title>Vendor Management Application</Title>);
+      title = (<Title>Vendor Managed Inventory</Title>);
     }
 
     return (

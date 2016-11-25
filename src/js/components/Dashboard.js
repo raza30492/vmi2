@@ -6,36 +6,31 @@ import Header from 'grommet/components/Header';
 
 import AppHeader from './AppHeader';
 
-import { navActivate } from '../actions';
 
 class Dashboard extends Component {
   constructor () {
 	  super();
 
-	  this._openNav = this._openNav.bind(this);
-  }
-
-  _openNav () {
-	  this.props.dispatch(navActivate(true));
   }
 
   render () {
 
-	//  let { active: navActive } = this.props.nav;
-	//  let title = null;
-	//   if ( !navActive ) {
-  //   title =(
-	// 		  <Title onClick={this._openNav}>
-	// 	      Sample App
-	// 	    </Title>
-	//     );
-  // }
     return (
 		  <div>
 		    <Header>
 			    <AppHeader />
 			  </Header>
-			  <h1>Welcome to Dashboard!</h1>
+        <div>
+        <h1>Welcome to Dashboard!</h1>
+        <form method="POST" action="http://localhost:8080/api/upload" encType="multipart/form-data">
+          File1 to upload: <input type="file" name="file" /><br/>
+
+          Name1: <input type="text" name="name" /><br/>
+
+          <input type="submit" value="Upload" /> Press here to upload the file!
+        </form>
+        </div>
+
 			</div>
     );
   }

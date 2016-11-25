@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { headers } from 'grommet/utils/Rest';
-import { handleErrors } from '../utils/restUtil';
+import { connect } from 'react-redux';
 
+import { getFits, addFit, editFit, removeFit, TOGGLE_FIT_ADD_FORM, TOGGLE_FIT_EDIT_FORM } from '../actions';
+//Components
 import Add from "grommet/components/icons/base/Add";
 import AppHeader from './AppHeader';
 import Box from 'grommet/components/Box';
@@ -19,52 +20,24 @@ import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
 import ListPlaceholder from 'grommet-addons/components/ListPlaceholder';
 import Section from 'grommet/components/Section';
+import Spinning from 'grommet/components/icons/Spinning';
 
-export default class Fit extends Component {
+class Fit extends Component {
+
   constructor () {
     super();
     this.state = {
-      hideAddForm: true,
-      hideEditForm: true,
-      count: 0,
-      fits : [],
-      fitName: ''
+      fitName: '',
+      href: null
     };
-    this._onLoad = this._onLoad.bind(this);
-    this._addFit = this._addFit.bind(this);
-    this._editFit = this._editFit.bind(this);
   }
 
   componentDidMount () {
-    this._onLoad();
-  }
-
-  _onLoad () {
-    const options = {method: 'GET', headers: {...headers}};
-    fetch(window.serviceHost + '/fits', options)
-    .then(handleErrors)
-    .then(response => response.json())
-    .then(data => {
-      let fits = data._embedded.fits.map(fit => {
-        return { href: fit._links.self.href, name: fit.name};
-      });
-      this.setState({fits:fits, count:fits.length});
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    this.props.dispatch(getFits());
   }
 
   _removeFit (href) {
-    const options = {method: 'DELETE', headers: {...headers}};
-    fetch(href, options)
-    .then(handleErrors)
-    .then(response => {
-      this._onLoad();
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    this.props.dispatch(removeFit(href));
   }
 
   _editFit () {
@@ -73,68 +46,46 @@ export default class Fit extends Component {
       alert("Enetr Fit Name First!");
       return;
     }
-    const data = {name: fitName};
-    const options = {method: 'PUT', headers: {...headers}, body: JSON.stringify(data)};
-    fetch(href, options)
-    .then(handleErrors)
-    .then((response) => {
-      if (response.status == 409) {
-        alert('Duplicate Entry!');
-      }else{
-        console.log(data);
-        this._onLoad();
-        this.setState({hideEditForm:true, fitName:''});
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    const fit = {name: fitName};
+    this.props.dispatch(editFit(href,fit));
+    this.setState({href: null, fitName: ''});
   }
 
   _onEditClick (name, href) {
-    this.setState({hideEditForm:false,fitName:name, href: href});
+    this.setState({href: href, fitName: name});
+    this.props.dispatch({type: TOGGLE_FIT_EDIT_FORM, payload: {editing: true}});
   }
 
   _onAddClick () {
-    this.setState({hideAddForm:false});
+    this.props.dispatch({type: TOGGLE_FIT_ADD_FORM, payload: {adding: true}});
   }
 
   _onCloseLayer (layer) {
     if( layer == 'add')
-      this.setState({hideAddForm:true});
+      this.props.dispatch({type: TOGGLE_FIT_ADD_FORM, payload: {adding: false}});
     else
-      this.setState({hideEditForm:true});
+      this.props.dispatch({type: TOGGLE_FIT_EDIT_FORM, payload: {editing: false}});
   }
 
   _onChangeInput (e) {
     this.setState({fitName:e.target.value});
   }
+
   _addFit () {
     const { fitName } = this.state;
     if (fitName == null || fitName == "") {
       alert("Enetr Fit Name First!");
       return;
     }
-    const data = {name: fitName};
-    const options = {method: 'POST', headers: {...headers}, body: JSON.stringify(data)};
-    fetch(window.serviceHost + '/fits', options)
-    .then(handleErrors)
-    .then((response) => {
-      if (response.status == 409) {
-        alert('Duplicate Entry!');
-      }else{
-        console.log(data);
-        this._onLoad();
-        this.setState({hideAddForm:true, fitName:''});
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    const fit = {name: fitName};
+    this.props.dispatch(addFit(fit));
+    //this.props.dispatch(getFits());
   }
 
   render () {
-    let { fits, count } = this.state;
+    //this.props.dispatch(getFits());
+    let { fits, fetching, adding, editing } = this.props.fit;
+    let count = fetching ? 100 : fits.length;
     let items = fits.map(fit => {
       return (
         <ListItem key={fit.href} justify="between" pad={{vertical:'none',horizontal:'small'}} >
@@ -146,9 +97,10 @@ export default class Fit extends Component {
         </ListItem>
       );
     });
+    const loading = fetching ? (<Spinning />) : null;
 
     const layerAdd = (
-      <Layer hidden={this.state.hideAddForm} onClose={this._onCloseLayer.bind(this, 'add')}  closer={true} align="center">
+      <Layer hidden={!adding} onClose={this._onCloseLayer.bind(this, 'add')}  closer={true} align="center">
         <Form>
           <Header><Heading tag="h3" strong={true}>Add New Fit</Heading></Header>
           <FormFields>
@@ -157,14 +109,14 @@ export default class Fit extends Component {
               </FormField>
           </FormFields>
           <Footer pad={{"vertical": "medium"}} >
-            <Button label="Add" primary={true}  onClick={this._addFit} />
+            <Button label="Add" primary={true}  onClick={this._addFit.bind(this)} />
           </Footer>
         </Form>
       </Layer>
     );
 
     const layerEdit = (
-      <Layer hidden={this.state.hideEditForm} onClose={this._onCloseLayer.bind(this, 'edit')} closer={true} align="center">
+      <Layer hidden={!editing} onClose={this._onCloseLayer.bind(this, 'edit')} closer={true} align="center">
         <Form>
           <Header><Heading tag="h3" strong={true}>Edit Fit</Heading></Header>
           <FormFields>
@@ -173,7 +125,7 @@ export default class Fit extends Component {
               </FormField>
           </FormFields>
           <Footer pad={{"vertical": "medium"}} >
-            <Button label="Edit" primary={true}  onClick={this._editFit} />
+            <Button label="Edit" primary={true}  onClick={this._editFit.bind(this)} />
           </Footer>
         </Form>
       </Layer>
@@ -183,14 +135,16 @@ export default class Fit extends Component {
       <div>
 			    <AppHeader />
 
-  			  <Section size="auto" pad={{horizontal: 'large'}} full="horizontal" wrap={true} justify="center">
-            <Heading tag='h2' align="center" >Fits</Heading>
-            <List selectable={true} >
-              {items}
-            </List>
-            <ListPlaceholder unfilteredTotal={count} filteredTotal={count} emptyMessage="You do not have any items at the moment." />
+          <Section direction="column" pad={{vertical: 'large', horizontal:'small'}}>
+          <Box size="xsmall" alignSelf="center" pad={{horizontal:'medium'}} >
+            {loading}
+          </Box>
+            <Box size="large" alignSelf="center" >
+              <List selectable={true} > {items} </List>
+              <ListPlaceholder unfilteredTotal={count} filteredTotal={count} emptyMessage="You do not have any fits at the moment." />
+            </Box>
             <Box size="small" alignSelf="center" pad={{vertical:'large'}}>
-              <Button icon={<Add />} label="Add item" primary={true} a11yTitle="Add item" onClick={this._onAddClick.bind(this)}/>
+              <Button icon={<Add />} label="Add Fit" primary={true} a11yTitle="Add item" onClick={this._onAddClick.bind(this)}/>
             </Box>
           </Section>
 
@@ -200,3 +154,9 @@ export default class Fit extends Component {
     );
   };
 }
+
+let select = (store) => {
+  return { fit: store.fit};
+};
+
+export default connect(select)(Fit);
