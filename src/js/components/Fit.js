@@ -65,6 +65,7 @@ class Fit extends Component {
       this.props.dispatch({type: TOGGLE_FIT_ADD_FORM, payload: {adding: false}});
     else
       this.props.dispatch({type: TOGGLE_FIT_EDIT_FORM, payload: {editing: false}});
+    this.setState({href: null, fitName: ''});
   }
 
   _onChangeInput (e) {

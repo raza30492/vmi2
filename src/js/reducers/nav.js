@@ -7,6 +7,7 @@ const initialState = {
   active: true,
   items:[
     { path: '/', label: 'Dashboard'},
+    { path: '/buyer', label: 'Buyer'},
     { path: '/fit', label: 'Fit'},
     { path: '/sku', label: 'SKU'}
   ]

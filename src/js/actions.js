@@ -102,6 +102,101 @@ export function removeFit (url) {
   };
 }
 
+////////////////////////////////////////  BUYER  ///////////////////////////////////////////
+export const BUYER_FETCH_PROGRESS = 'BUYER_FETCH_PROGRESS';
+export const BUYER_FETCH_SUCCESS = 'BUYER_FETCH_SUCCESS';
+export const BUYER_FETCH_FAIL = 'BUYER_FETCH_FAIL';
+export const BUYER_ADD_SUCCESS = 'BUYER_ADD_SUCCESS';
+export const BUYER_ADD_FAIL = 'BUYER_ADD_FAIL';
+export const BUYER_EDIT_SUCCESS = 'BUYER_EDIT_SUCCESS';
+export const BUYER_EDIT_FAIL = 'BUYER_EDIT_FAIL';
+export const BUYER_REMOVE_SUCCESS = 'BUYER_REMOVE_SUCCESS';
+export const BUYER_REMOVE_FAIL = 'BUYER_REMOVE_FAIL';
+export const TOGGLE_BUYER_ADD_FORM = 'TOGGLE_BUYER_ADD_FORM';
+export const TOGGLE_BUYER_EDIT_FORM = 'TOGGLE_BUYER_EDIT_FORM';
+
+
+export function getBuyers () {
+  return function (dispatch) {
+    dispatch({type:BUYER_FETCH_PROGRESS});
+
+    const options = {method: 'GET', headers: {...headers}};
+    fetch(window.serviceHost + '/buyers', options)
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(data => {
+      let buyers = data._embedded.buyers.map(buyer => {
+        return { href: buyer._links.self.href, name: buyer.name};
+      });
+      dispatch({type: BUYER_FETCH_SUCCESS, payload: {buyers: buyers}});
+    })
+    .catch(error => {
+      console.log(error);
+      dispatch({type: BUYER_FETCH_FAIL});
+    });
+  };
+}
+
+export function addBuyer (buyer) {
+  return function (dispatch) {
+    const options = {method: 'POST', headers: {...headers}, body: JSON.stringify(buyer)};
+    fetch(window.serviceHost + '/buyers', options)
+    .then(handleErrors)
+    .then((response) => {
+      if (response.status == 409) {
+        alert('Duplicate Entry!');
+      }else{
+        response.json().then((data)=>{
+          dispatch({type: BUYER_ADD_SUCCESS,payload: {buyer: {href: data._links.self.href, name: data.name}}});
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      dispatch({type: BUYER_ADD_FAIL});
+    });
+  };
+}
+
+export function editBuyer (url, buyer) {
+  return function (dispatch) {
+    const options = {method: 'PUT', headers: {...headers}, body: JSON.stringify(buyer)};
+    fetch(url, options)
+    .then(handleErrors)
+    .then((response) => {
+      if (response.status == 409) {
+        alert('Duplicate Entry!');
+      }else{
+        response.json().then((data)=>{
+          dispatch({type: BUYER_EDIT_SUCCESS,payload: {buyer: {href: data._links.self.href, name: data.name}}});
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      dispatch({type: BUYER_EDIT_FAIL});
+    });
+  };
+}
+
+export function removeBuyer (url) {
+  return function (dispatch) {
+    const options = {method: 'DELETE', headers: {...headers}};
+    fetch(url, options)
+    .then(handleErrors)
+    .then(response => {
+      if (response.status == 204 || response.status == 200) {
+        dispatch({type: BUYER_REMOVE_SUCCESS, payload: {href: url}});
+      }else{
+        console.log(response);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
+}
+
 //User
 export const AUTH_PROGRESS = 'AUTH_PROGRESS';
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
