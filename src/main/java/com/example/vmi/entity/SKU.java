@@ -16,7 +16,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(
         name = "SKU",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"SKU", "FIT_ID"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"NAME", "FIT_ID"})
 )
 public class SKU implements Serializable{
     
@@ -25,15 +25,12 @@ public class SKU implements Serializable{
     @Column(name = "ID", nullable = false, unique = true)
     private Long id;
     
-    @Column(name = "SKU", nullable = false)
-    private String sku;
+    @Column(name = "NAME", nullable = false)
+    private String name;
     
     @ManyToOne(optional = false)
     @JoinColumn(name = "FIT_ID", nullable = false)
     private Fit fit;
-    
-    @Column(name = "GRP", nullable = false)
-    private int grp; //Group
     
     @ManyToOne(optional = false)
     @JoinColumn(name = "BUYER_ID")
@@ -42,10 +39,9 @@ public class SKU implements Serializable{
     public SKU() {
     }
 
-    public SKU(String sku, Fit fit, int grp, Buyer buyer) {
-        this.sku = sku;
+    public SKU(String sku, Fit fit, Buyer buyer) {
+        this.name = sku;
         this.fit = fit;
-        this.grp = grp;
         this.buyer = buyer;
     }
 
@@ -57,12 +53,12 @@ public class SKU implements Serializable{
 		this.id = id;
 	}
 
-	public String getSku() {
-		return sku;
+	public String getName() {
+		return name;
 	}
 
-	public void setSku(String sku) {
-		this.sku = sku;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Fit getFit() {
@@ -71,14 +67,6 @@ public class SKU implements Serializable{
 
 	public void setFit(Fit fit) {
 		this.fit = fit;
-	}
-
-	public int getGrp() {
-		return grp;
-	}
-
-	public void setGrp(int grp) {
-		this.grp = grp;
 	}
 
 	public Buyer getBuyer() {

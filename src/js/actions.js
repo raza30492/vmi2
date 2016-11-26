@@ -196,6 +196,100 @@ export function removeBuyer (url) {
     });
   };
 }
+//
+// ////////////////////////////////////////  SKU  ///////////////////////////////////////////
+// export const SKU_FETCH_PROGRESS = 'SKU_FETCH_PROGRESS';
+// export const SKU_FETCH_SUCCESS = 'SKU_FETCH_SUCCESS';
+// export const SKU_FETCH_FAIL = 'SKU_FETCH_FAIL';
+// export const SKU_ADD_SUCCESS = 'SKU_ADD_SUCCESS';
+// export const SKU_ADD_FAIL = 'SKU_ADD_FAIL';
+// export const SKU_EDIT_SUCCESS = 'SKU_EDIT_SUCCESS';
+// export const SKU_EDIT_FAIL = 'SKU_EDIT_FAIL';
+// export const SKU_REMOVE_SUCCESS = 'SKU_REMOVE_SUCCESS';
+// export const SKU_REMOVE_FAIL = 'SKU_REMOVE_FAIL';
+// export const TOGGLE_SKU_ADD_FORM = 'TOGGLE_SKU_ADD_FORM';
+// export const TOGGLE_SKU_EDIT_FORM = 'TOGGLE_SKU_EDIT_FORM';
+//
+// export function getSkus () {
+//   return function (dispatch) {
+//     dispatch({type:SKU_FETCH_PROGRESS});
+//
+//     const options = {method: 'GET', headers: {...headers}};
+//     fetch(window.serviceHost + '/skus', options)
+//     .then(handleErrors)
+//     .then(response => response.json())
+//     .then(data => {
+//       let skus = data._embedded.skus.map(sku => {
+//         return { href: sku._links.self.href, name: sku.name, fit: sku._links.fit.href, buyer: sku._links.buyer.href };
+//       });
+//       dispatch({type: SKU_FETCH_SUCCESS, payload: {skus: skus}});
+//     })
+//     .catch(error => {
+//       console.log(error);
+//       dispatch({type: SKU_FETCH_FAIL});
+//     });
+//   };
+// }
+//
+// export function addSku (sku) {
+//   return function (dispatch) {
+//     const options = {method: 'POST', headers: {...headers}, body: JSON.stringify(sku)};
+//     fetch(window.serviceHost + '/skus', options)
+//     .then(handleErrors)
+//     .then((response) => {
+//       if (response.status == 409) {
+//         alert('Duplicate Entry!');
+//       }else{
+//         response.json().then((data)=>{
+//           dispatch({type: SKU_ADD_SUCCESS,payload: {sku: {href: data._links.self.href, name: data.name}}});
+//         });
+//       }
+//     })
+//     .catch(error => {
+//       console.log(error);
+//       dispatch({type: SKU_ADD_FAIL});
+//     });
+//   };
+// }
+//
+// export function editSku (url, sku) {
+//   return function (dispatch) {
+//     const options = {method: 'PUT', headers: {...headers}, body: JSON.stringify(sku)};
+//     fetch(url, options)
+//     .then(handleErrors)
+//     .then((response) => {
+//       if (response.status == 409) {
+//         alert('Duplicate Entry!');
+//       }else{
+//         response.json().then((data)=>{
+//           dispatch({type: SKU_EDIT_SUCCESS,payload: {sku: {href: data._links.self.href, name: data.name}}});
+//         });
+//       }
+//     })
+//     .catch(error => {
+//       console.log(error);
+//       dispatch({type: SKU_EDIT_FAIL});
+//     });
+//   };
+// }
+//
+// export function removeSku (url) {
+//   return function (dispatch) {
+//     const options = {method: 'DELETE', headers: {...headers}};
+//     fetch(url, options)
+//     .then(handleErrors)
+//     .then(response => {
+//       if (response.status == 204 || response.status == 200) {
+//         dispatch({type: SKU_REMOVE_SUCCESS, payload: {href: url}});
+//       }else{
+//         console.log(response);
+//       }
+//     })
+//     .catch(error => {
+//       console.log(error);
+//     });
+//   };
+// }
 
 //User
 export const AUTH_PROGRESS = 'AUTH_PROGRESS';

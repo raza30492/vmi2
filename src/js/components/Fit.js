@@ -80,6 +80,7 @@ class Fit extends Component {
     }
     const fit = {name: fitName};
     this.props.dispatch(addFit(fit));
+    this.setState({fitName:''});
     //this.props.dispatch(getFits());
   }
 
@@ -137,9 +138,9 @@ class Fit extends Component {
 			    <AppHeader />
 
           <Section direction="column" pad={{vertical: 'large', horizontal:'small'}}>
-          <Box size="xsmall" alignSelf="center" pad={{horizontal:'medium'}} >
-            {loading}
-          </Box>
+            <Box size="xsmall" alignSelf="center" pad={{horizontal:'medium'}} >
+              {loading}
+            </Box>
             <Box size="large" alignSelf="center" >
               <List selectable={true} > {items} </List>
               <ListPlaceholder unfilteredTotal={count} filteredTotal={count} emptyMessage="You do not have any fits at the moment." />
