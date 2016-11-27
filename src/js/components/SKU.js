@@ -10,7 +10,7 @@ import AppHeader from './AppHeader';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import Close from "grommet/components/icons/base/Close";
-import Dropzone from 'react-dropzone';
+//import Dropzone from 'react-dropzone';
 import Edit from "grommet/components/icons/base/Edit";
 import Footer from 'grommet/components/Footer';
 import Form from 'grommet/components/Form';
@@ -26,6 +26,8 @@ import Spinning from 'grommet/components/icons/Spinning';
 import Table from 'grommet/components/Table';
 import TableRow from 'grommet/components/TableRow';
 
+// const FILE_FIELD_NAME = 'files';
+
 class SKU extends Component {
   constructor () {
     super();
@@ -38,8 +40,7 @@ class SKU extends Component {
       fitName: null,
       buyerName: 'Select Buyer',
       skuName: '',
-      skus : [],
-      files: []
+      skus : []
     };
     this._onDrop = this._onDrop.bind(this);
     this._getSkus = this._getSkus.bind(this);
@@ -114,31 +115,6 @@ class SKU extends Component {
     });
   }
 
-  _addBatchSku (e) {
-    const { fitName, buyerName} = this.state;
-    var data = new FormData();
-    data.append('buyer',buyerName);
-    data.append('fit', fitName);
-    data.append("file", this.state.files[0]);
-    const options = {
-      method: 'post',
-      body: data
-    };
-
-    fetch(window.serviceHost + "/upload/sku", options)
-    .then((response)=>{
-      if (response.status == 200 || response.status == 201){
-        this.setState({addingBatch:false});
-        this._getSkus(fitName);
-      }
-      console.log(response);
-    })
-    .catch((error)=>{
-      console.log(error);
-      this.setState({addingBatch:false});
-    });
-  }
-
   _editSku () {
     //console.log('editSku()');
     const { url, fitName, buyerName, skuName} = this.state;
@@ -196,11 +172,8 @@ class SKU extends Component {
     this.setState({skuName:e.target.value});
   }
 
-  _onAddClick (type) {
-    if (type == 'single')
-      this.setState({addingSingle: true});
-    else if (type == 'batch')
-      this.setState({addingBatch: true});
+  _onAddClick () {
+    this.setState({addingSingle: true});
   }
 
   _onEditClick (url, name) {
@@ -229,17 +202,34 @@ class SKU extends Component {
     this.setState({files: files});
   }
 
+  _onSubmit (e) {
+    //e.preventDefault();
+    var data = new FormData();
+    data.append("file", this.state.files[0]);
+    const options = {
+      method: 'post',
+      body: data
+    };
+
+    fetch(window.serviceHost + "/upload", options)
+    .then((response)=>{
+      console.log(response);
+    })
+    .catch((error)=>{
+      console.log(error);
+    });
+  }
+
   render () {
     const { fits } = this.props.fit;
     const { buyers } = this.props.buyer;
-    const { fetching, addingSingle, addingBatch, editing, skus, buyerName, skuName, files, fitName: value } = this.state;
+    const { fetching, addingSingle, addingBatch, editing, skus, buyerName, skuName, fitName: value } = this.state;
     const fitItems = fits.map(fit=> fit.name); //Fit Filter all values
     const fitName = (value == null) ? fitItems[0] : value; //Fit Filter selected value
     const count = fetching ? 100 : skus.length;  // For showing emptyMessage [ListPlaceholder]
 
     const buyerItems = buyers.map(buyer=>buyer.name);
     const loading = fetching ? (<Spinning />) : null;
-    const content = files.length != 0 ? (<div>{files[0].name}</div>) : (<div>Drop file here or Click to open file browser</div>);
 
     const skuItems = skus.map((sku, index)=>{
       return (
@@ -275,38 +265,26 @@ class SKU extends Component {
         </Form>
       </Layer>
     );
-    const style = {
-        width: 450,
-        height: 100,
-        borderWidth: 2,
-        borderColor: '#666',
-        borderStyle: 'dashed',
-        borderRadius: 5,
-        textAlign: 'center',
-        paddingTop: 35,
-        margin: 'auto'
-      };
+
     const layerAddBatch = (
       <Layer hidden={!addingBatch} onClose={this._onCloseLayer.bind(this, 'addBatch')}  closer={true} align="center">
-        <Form>
-          <Header><Heading tag="h3" strong={true}>Upload</Heading></Header>
-          <FormFields>
-            <FormField>
-              <Select options={buyerItems} value={buyerName} onChange={this._onBuyerFilter.bind(this)}/>
-            </FormField>
-            <FormField>
-              <Select options={fitItems} value={fitName} onChange={this._onFitFilter.bind(this)}/>
-            </FormField>
-            <FormField label="Excel File containing SKU" >
-              <Dropzone style={style} onDrop={this._onDrop} accept='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel' >
-                {content}
-              </Dropzone>
-            </FormField>
-          </FormFields>
-          <Footer pad={{"vertical": "medium"}} >
-            <Button label="Upload" primary={true}  onClick={this._addBatchSku.bind(this)} />
-          </Footer>
-        </Form>
+        // <Form>
+        //   <Header><Heading tag="h3" strong={true}>Add New SKU</Heading></Header>
+        //   <FormFields>
+        //     <FormField>
+        //       <Select options={buyerItems} value={buyerName} onChange={this._onBuyerFilter.bind(this)}/>
+        //     </FormField>
+        //     <FormField>
+        //       <Select options={fitItems} value={fitName} onChange={this._onFitFilter.bind(this)}/>
+        //     </FormField>
+        //     <FormField label="SKU name" >
+        //       <input type="text" value={skuName} onChange={this._onChangeInput.bind(this)} />
+        //     </FormField>
+        //   </FormFields>
+        //   <Footer pad={{"vertical": "medium"}} >
+        //     <Button label="Add" primary={true}  onClick={this._addSku.bind(this)} />
+        //   </Footer>
+        // </Form>
       </Layer>
     );
 
@@ -337,8 +315,8 @@ class SKU extends Component {
 		    <AppHeader />
         <Section direction="column" size="xxlarge" pad={{vertical: 'large', horizontal:'small'}}>
           <Box direction="row" alignSelf="center">
-            <Box pad={{horizontal:'small'}}><Button label="Add Single" onClick={this._onAddClick.bind(this, 'single')}  /></Box>
-            <Box pad={{horizontal:'small'}}><Button label="Add Batch" onClick={this._onAddClick.bind(this, 'batch')}  /></Box>
+            <Box pad={{horizontal:'small'}}><Button label="Add Single" onClick={this._onAddClick.bind(this)}  /></Box>
+            <Box pad={{horizontal:'small'}}><Button label="Add Batch"  /></Box>
           </Box>
           <Box size="large" alignSelf="center" >
             <Table>
@@ -373,3 +351,13 @@ let select = (store) => {
 };
 
 export default connect(select)(SKU);
+
+
+// <Box>
+//   <Dropzone onDrop={this._onDrop}  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+//     {content}
+//   </Dropzone>
+// </Box>
+// <Box>
+//   <Button label="Submit" onClick={this._onSubmit} />
+// </Box>

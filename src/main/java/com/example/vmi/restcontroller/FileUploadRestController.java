@@ -3,7 +3,6 @@ package com.example.vmi.restcontroller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,25 +11,22 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.vmi.service.SkuService;
 import com.example.vmi.storage.StorageFileNotFoundException;
 import com.example.vmi.storage.StorageService;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/upload")
 public class FileUploadRestController {
 
-    @Autowired private StorageService storageService;
-    
-    @Autowired private SkuService skuService;
+    private final StorageService storageService;
+
+    @Autowired
+    public FileUploadRestController(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @GetMapping("/")
     public String listUploadedFiles(Model model) throws IOException {
@@ -57,12 +53,15 @@ public class FileUploadRestController {
                 .body(file);
     }
 
-    @PostMapping("/sku")
-    public ResponseEntity<Void> handleFileUpload(@RequestParam("buyer") String buyer, @RequestParam("fit") String fit, @RequestParam("file") MultipartFile file ) {
-    	if(!file.isEmpty()){
-    		skuService.addBatch(buyer, fit, file);
-    	}
-    	return new ResponseEntity<Void>(HttpStatus.OK);
+    @PostMapping
+    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+                                   RedirectAttributes redirectAttributes) {
+
+        storageService.store(file);
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded " + file.getOriginalFilename() + "!");
+
+        return "redirect:/";
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)

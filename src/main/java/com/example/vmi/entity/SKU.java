@@ -12,8 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.opencsv.bean.CsvBindByName;
-
 
 @Entity
 @Table(
@@ -28,7 +26,6 @@ public class SKU implements Serializable{
     private Long id;
     
     @Column(name = "NAME", nullable = false)
-    @CsvBindByName(column = "SKU")
     private String name;
     
     @ManyToOne(optional = false)
@@ -80,9 +77,5 @@ public class SKU implements Serializable{
 		this.buyer = buyer;
 	}
 
-	@Override
-	public String toString() {
-		return "SKU [id=" + id + ", name=" + name + ", fit=" + fit + ", buyer=" + buyer + "]";
-	}
 
 }
