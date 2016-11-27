@@ -41,4 +41,9 @@ public class Fit {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		return "Fit [id=" + id + ", name=" + name + "]";
+	}
 }
